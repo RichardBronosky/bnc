@@ -87,7 +87,8 @@ class Client(object):
             self.channels[chan].append(mask)
 
     def irc_353(self, mask, params):
-        nick, params = params.split(' = ', 1)
+        splitter = re.compile(' = | @ ')
+        nick, params = splitter.split(params, 1)
         chan, params = params.split(' :', 1)
 
         for nick in params.split(' '):
