@@ -2,7 +2,6 @@
 from os import environ
 environ['NCORE_CONFIG'] = '/home/synack/src/ircbnc/'
 
-from ncore.config import conf
 from socket import socket, SO_REUSEADDR, SOL_SOCKET
 from traceback import format_exc
 from ssl import wrap_socket
@@ -333,15 +332,16 @@ class Relay(object):
 def main():
     servers = {}
     relays = {}
-    for info in conf('servers'):
-        if not info['enabled']: continue
-        server = Client(info['address'], info['nick'])
-        servers[info['name']] = server
-        server.connect()
-        print 'Connected to upstream server', info['name']
+    with open('app.conf', 'r') as conf:
+        for info in json.load(conf)['servers']:
+            if not info['enabled']: continue
+            server = Client(info['address'], info['nick'])
+            servers[info['name']] = server
+            server.connect()
+            print 'Connected to upstream server', info['name']
 
-        relay = Relay(info['relay_address'], server)
-        relays[info['name']] = relay
+            relay = Relay(info['relay_address'], server)
+            relays[info['name']] = relay
 
     while True:
         for name in servers:
